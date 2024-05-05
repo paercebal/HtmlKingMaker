@@ -1,0 +1,474 @@
+<html>
+<head>
+<link rel="icon" type="image/png" href="./favicon.png" />
+<meta charset="utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<title>KingMaker v0.1.10</title>
+<script src="./HtmlKingMaker.basic.js"></script>
+<script src="./HtmlKingMaker.js"></script>
+<script src="./HtmlKingMaker.translation.js"></script>
+<script src="./HtmlKingMaker.translation.en.js"></script>
+<script src="./HtmlKingMaker.translation.fr.js"></script>
+<script>
+function do_onload()
+{
+   on_debug_change();
+   set_onchange_events_everywhere_needed();
+   on_language_change();
+   update_title_for_all_select();
+   on_data_change();
+}
+
+let g_data = new data();
+
+function on_data_change()
+{
+   retrieve_data_from_HTML(g_data);
+   display_data_into_HTML(g_data);
+}
+
+function on_copy_save_to_load()
+{
+   id("ID_JSON_output_to_load").value = id("ID_JSON_output").value;
+}
+
+
+function on_debug_change()
+{
+   let s = id("ID_display_debug");
+   let d = select_value_as_string("ID_debug");
+   if(d == "YES")
+   {
+      s.innerHTML = "div.cssDisplayIfDebug { display : block;}\nspan.cssDisplayIfDebug { display : inline-block;}" ;
+   }
+   else
+   {
+      s.innerHTML = "div.cssDisplayIfDebug { display : none;}\nspan.cssDisplayIfDebug { display : none;}" ;
+   }
+}
+
+function on_data_save_to_JSON()
+{
+   save_data_into_textarea(g_data, "ID_JSON_output");
+}
+
+function on_data_load_from_JSON()
+{
+   g_data = load_data_from_textarea("ID_JSON_output_to_load");
+   display_data_into_HTML(g_data);
+}
+</script>
+<style>@import url("HtmlKingMaker.css");</style>
+<style id="ID_display_debug">
+div.cssDisplayIfDebug { display : none;}
+span.cssDisplayIfDebug { display : none;}
+</style>
+</head>
+<body onload="do_onload()">
+<h1>HTML King Maker <sup class="cssSize50">0.1.10</sup></h1>
+
+<table class="cssGrid" width="100%">
+<tr>
+   <td align="right" width="30%"><span rbr_translate="configuration">Configuration</span>&#160;:</td>
+   <td width="60%">
+      <span rbr_translate="language"></span>
+      <select id="ID_language" class="cssSelect" onchange="on_language_change()">
+         <option value="EN" selected="selected">English</option>
+         <option value="FR">Français</option>
+      </select>
+      <span rbr_translate="debug"></span>
+      <select id="ID_debug" class="cssSelect" onchange="on_debug_change()">
+         <option rbr_translate="debug_no" value="NO">No</option>
+         <option rbr_translate="debug_yes" value="YES" selected="selected">Yes</option>
+      </select>
+   </td>
+</tr>
+
+
+
+
+
+
+
+
+<tr>
+   <th rbr_translate="kingdom" class="cssSectionTitle" colspan="2">Kingdom</th>
+</tr>
+
+
+
+
+
+
+
+
+<tr>
+   <td align="right"><span rbr_translate="kingdom_name">Name</span>&#160;:</td>
+   <td><input id="ID_kingdom_name" type="text" class="cssInput cssWidth100" rbr_change=""></td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_alignment">Alignment</span>&#160;:</td>
+   <td>
+      <select id="ID_kingdom_alignment_social" class="cssSelect" rbr_change="">
+         <option rbr_translate="alignment_l" value="L">Lawful</option>
+         <option rbr_translate="alignment_n" value="N" selected="selected">Neutral</option>
+         <option rbr_translate="alignment_c" value="C">Chaotic</option>
+      </select>
+      <select id="ID_kingdom_alignment_moral" class="cssSelect" rbr_change="">
+         <option rbr_translate="alignment_g" value="G">Good</option>
+         <option rbr_translate="alignment_n" value="N" selected="selected">Neutral</option>
+         <option rbr_translate="alignment_e" value="E">Evil</option>
+      </select>
+   </td>
+</tr>
+<tr rbr_hint="kingdom_size">
+   <td align="right"><span rbr_translate="kingdom_size">Size</span>&#160;:</td>
+   <td><input id="ID_kingdom_size" type="number" min="0" class="cssInput cssRight" value="0" size="5" rbr_change=""> <span rbr_translate="kingdom_size_unit">12-miles Hexagon</span></td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="control_dc">Control DC</span>&#160;:</td>
+   <td><input id="ID_control_dc" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly" rbr_hint="control_dc"></td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_population">Population</span>&#160;:</td>
+   <td><input id="ID_kingdom_population" type="text" min="0" class="cssInput cssRight" value="0" size="12" readonly="readonly"></td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_unrest">Unrest</span>&#160;:</td>
+   <td>
+      <input id="ID_unrest" type="number" min="0" class="cssInput cssRight" value="0" size="5" rbr_change="">
+   </td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_stability">Stability Success DC</span>&#160;:</td>
+   <td>
+      <input id="ID_kingdom_stability_success_dc" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly" rbr_hint="kingdom_stability">
+      <span class="cssDisplayIfDebug">(= <span rbr_translate="control_dc">Control DC</span> + <span rbr_translate="kingdom_unrest">Unrest</span> - <input id="ID_kingdom_stability_total" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly">
+      (=
+      <input id="ID_kingdom_stability_from_alignment" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly">
+      +
+      </span><input id="ID_kingdom_stability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change=""><span class="cssDisplayIfDebug"> + Misc. Resources))</span>
+   </td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_economy">Economy Success DC</span>&#160;:</td>
+   <td>
+      <input id="ID_kingdom_economy_success_dc" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly" rbr_hint="kingdom_economy">
+      <span class="cssDisplayIfDebug">(= <span rbr_translate="control_dc">Control DC</span> + <span rbr_translate="kingdom_unrest">Unrest</span> - <input id="ID_kingdom_economy_total" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly">
+      (=
+      <input id="ID_kingdom_economy_from_alignment" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly">
+      +
+      </span><input id="ID_kingdom_economy_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change=""><span class="cssDisplayIfDebug"> + Misc. Resources))</span>
+   </td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_loyalty">Loyalty Success DC</span>&#160;:</td>
+   <td>
+      <input id="ID_kingdom_loyalty_success_dc" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly" rbr_hint="kingdom_loyalty">
+      <span class="cssDisplayIfDebug">
+      (= <span rbr_translate="control_dc">Control DC</span> + <span rbr_translate="kingdom_unrest">Unrest</span> - <input id="ID_kingdom_loyalty_total" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly">
+      (=
+      <input id="ID_kingdom_loyalty_from_alignment" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly">
+      +
+      </span><input id="ID_kingdom_loyalty_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change=""><span class="cssDisplayIfDebug"> + Misc. Resources))</span>
+   </td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_consumption">Consumption</span>&#160;:</td>
+   <td>
+      <input id="ID_kingdom_consumption_bp" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly" rbr_hint="kingdom_consumption">&#160;<span rbr_translate="BP">BP</span>
+   </td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_treasury">Treasury</span>&#160;:</td>
+   <td>
+      <input id="ID_kingdom_treasury_bp" type="text" min="0" class="cssInput cssRight" value="0" size="5" readonly="readonly" rbr_hint="kingdom_treasury">&#160;<span rbr_translate="BP">BP</span>
+   </td>
+</tr>
+<tr>
+   <td align="right"><span rbr_translate="kingdom_resources_hex_count">Resources Hex Count</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="kingdom_caves_hex_count">
+         <span rbr_translate="kingdom_caves_hex_count">Caves Hex Count</span>&#160;:&#160;<input id="ID_caves_hex_count" type="number" min="0" class="cssInput cssRight" value="0" size="5" rbr_change="">
+      </span>,
+
+      <span rbr_hint="kingdom_landmarks_hex_count">
+         <span rbr_translate="kingdom_landmarks_hex_count">Landmarks Hex Count</span>&#160;:&#160;<input id="ID_landmarks_hex_count" type="number" min="0" class="cssInput cssRight" value="0" size="5" rbr_change="">
+      </span>,
+
+      <span rbr_hint="kingdom_roads_hex_count">
+         <span rbr_translate="kingdom_roads_hex_count">Roads Hex Count</span>&#160;:&#160;<input id="ID_roads_hex_count" type="number" min="0" class="cssInput cssRight" value="0" size="5" rbr_change="">
+      </span>,
+
+      <span rbr_hint="kingdom_landmarks_hex_count">
+         <span rbr_translate="kingdom_resources_hex_count">Resources Hex Count</span>&#160;:&#160;<input id="ID_resources_hex_count" type="number" min="0" class="cssInput cssRight" value="0" size="5" rbr_change="">
+      </span>
+     
+   </td>
+</tr>
+
+
+
+
+
+
+<tr>
+   <td colspan="2"><br /></td>
+</tr>
+
+<tr>
+   <th rbr_translate="leadership" class="cssSectionTitle" colspan="2">Leadership</th>
+</tr>
+
+
+
+
+
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_ruler">Ruler</span>&#160;:</td>
+   <td>
+      <span rbr_hint="leadership_ruler_is_absent">
+         <input id="ID_leadership_ruler_is_absent" type="checkbox" rbr_change="" />
+         <label rbr_translate="leadership_ruler_is_absent" for="ID_leadership_ruler_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_ruler_charisma_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_ruler_charisma_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_ruler_charisma_modifier_value">
+
+      <select id="ID_leadership_ruler_title" class="cssSelect" rbr_change="" disabled="disabled">
+         <option value="NULL" selected="selected"></option>
+         <option rbr_translate="ruler_title_baron" value="BARON">Baron</option>
+         <option rbr_translate="ruler_title_duke" value="DUKE">Duke</option>
+         <option rbr_translate="ruler_title_king" value="KING">King</option>
+      </select>,
+
+      <span rbr_translate="leadership_ruler_charisma_modifier_applies_to">applies to:</span>
+      
+      <span rbr_hint="leadership_ruler_charisma_modifier_applies_to_stability">
+         <input id="ID_leadership_ruler_cha_mod_for_stability" type="checkbox" rbr_change="" />
+         <label rbr_translate="leadership_ruler_charisma_modifier_applies_to_stability" for="ID_leadership_ruler_cha_mod_for_stability">Stability</label></span>,
+
+      <span rbr_hint="leadership_ruler_charisma_modifier_applies_to_economy">
+         <input id="ID_leadership_ruler_cha_mod_for_economy" type="checkbox" rbr_change="" />
+         <label rbr_translate="leadership_ruler_charisma_modifier_applies_to_economy" for="ID_leadership_ruler_cha_mod_for_economy">Economy</label></span>,
+
+      <span rbr_hint="leadership_ruler_charisma_modifier_applies_to_loyalty">
+         <input id="ID_leadership_ruler_cha_mod_for_loyalty" type="checkbox" rbr_change="" />
+         <label rbr_translate="leadership_ruler_charisma_modifier_applies_to_loyalty" for="ID_leadership_ruler_cha_mod_for_loyalty">Loyalty</label></span>.
+
+   </td>
+</tr>
+
+
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_councilor">Councilor</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_councilor_is_absent">
+         <input id="ID_leadership_councilor_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_councilor_is_absent" for="ID_leadership_councilor_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_councilor_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_councilor_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_councilor_ability_modifier_value">
+
+   </td>
+</tr>
+
+
+
+
+
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_general">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_general_is_absent">
+         <input id="ID_leadership_general_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_general_is_absent" for="ID_leadership_general_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_general_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_general_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_general_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_grand_diplomat">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_grand_diplomat_is_absent">
+         <input id="ID_leadership_grand_diplomat_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_grand_diplomat_is_absent" for="ID_leadership_grand_diplomat_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_grand_diplomat_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_grand_diplomat_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_grand_diplomat_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_high_priest">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_high_priest_is_absent">
+         <input id="ID_leadership_high_priest_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_high_priest_is_absent" for="ID_leadership_high_priest_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_high_priest_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_high_priest_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_high_priest_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_magister">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_magister_is_absent">
+         <input id="ID_leadership_magister_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_magister_is_absent" for="ID_leadership_magister_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_magister_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_magister_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_magister_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_marshal">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_marshal_is_absent">
+         <input id="ID_leadership_marshal_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_marshal_is_absent" for="ID_leadership_marshal_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_marshal_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_marshal_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_marshal_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_royal_assassin">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_royal_assassin_is_absent">
+         <input id="ID_leadership_royal_assassin_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_royal_assassin_is_absent" for="ID_leadership_royal_assassin_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_royal_assassin_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_royal_assassin_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_royal_assassin_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_spy_master">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_spy_master_is_absent">
+         <input id="ID_leadership_spy_master_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_spy_master_is_absent" for="ID_leadership_spy_master_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_spy_master_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_spy_master_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_spy_master_ability_modifier_value">
+
+
+      <span rbr_translate="leadership_spy_master_ability_modifier_applies_to">applies to:</span>
+
+      <select id="ID_leadership_spy_master_ability_modifier_applies_to" class="cssSelect" rbr_change="">
+         <option rbr_translate="spy_master_to_stability" value="STABILITY" selected="selected">Stability</option>
+         <option rbr_translate="spy_master_to_economy" value="ECONOMY">Economy</option>
+         <option rbr_translate="spy_master_to_loyalty" value="LOYALTY">Loyalty</option>
+      </select>
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_treasurer">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_treasurer_is_absent">
+         <input id="ID_leadership_treasurer_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_treasurer_is_absent" for="ID_leadership_treasurer_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_treasurer_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_treasurer_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_treasurer_ability_modifier_value">
+
+   </td>
+</tr>
+
+<tr>
+   <td align="right"><span rbr_translate="leadership_warden">XXX</span>&#160;:</td>
+   <td>
+
+      <span rbr_hint="leadership_warden_is_absent">
+         <input id="ID_leadership_warden_is_absent" type="checkbox" rbr_change="" checked="checked" />
+         <label rbr_translate="leadership_warden_is_absent" for="ID_leadership_warden_is_absent">is absent?</label></span>
+      
+      <span rbr_translate="leadership_warden_ability_modifier">Cha. Mod.:</span>
+      <input id="ID_leadership_warden_ability_modifier" type="number" class="cssInput cssRight" value="0" size="5" rbr_change="" rbr_hint="leadership_warden_ability_modifier_value">
+
+   </td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+
+<tr>
+   <td colspan="2"><br /></td>
+</tr>
+
+</table>
+
+
+
+<br />
+
+
+
+<table>
+<table class="cssGrid" width="100%">
+<tr>
+   <th class="cssSectionTitle" colspan="3">JSON</th>
+</tr>
+<tr>
+   <th width="48%">
+      <button type="button" class="cssButton" rbr_translate="save_data_to_json" onclick="on_data_save_to_JSON()">Save Data to JSON</button>
+   </th>
+   <th width="4%">
+   </th>
+   <th width="48%">
+      <button type="button" class="cssButton" rbr_translate="load_json_into_data" onclick="on_data_load_from_JSON()">Load JSON into Data</button>
+   </th>
+</tr>
+<tr>
+   <td align="center">
+      <textarea id="ID_JSON_output" class="cssTextarea" rows="10"></textarea>
+   </td>
+   <td align="center">
+      <button type="button" class="cssButtonAll" rbr_translate="copy_save_to_load" onclick="on_copy_save_to_load()">⇒</button>
+   </td>
+   <td align="center">
+      <textarea id="ID_JSON_output_to_load" class="cssTextarea" rows="10"></textarea>
+   </td>
+</tr>
+
+
+</table>
+
+</body>
+</html>
